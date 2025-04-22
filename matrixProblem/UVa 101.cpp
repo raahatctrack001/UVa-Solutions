@@ -170,6 +170,10 @@ int main() {
         freopen("output.txt", "w", stdout);
     #endif
 
+    int t;
+    cin>>t;
+
+    cout<<t<<endl;
     int numBlocks;
     cin >> numBlocks;
     cin.ignore(); // Ignore newline after the number

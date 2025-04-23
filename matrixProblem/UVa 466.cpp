@@ -38,140 +38,124 @@ typedef vector<pll> vpll;
 typedef set<int> si;
 typedef map<int, int> mii;
 
-class Mirror{
+// mirror_transform.cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+class PatternMatrix {
 private:
-	int dimension;
-	int patternNo;
-	vector<string> pattern;
-	vector<string> mPattern; //modified Pattern
+    int dimension;
+    vector<string> original;
+    vector<string> transformed;
 
 public:
-	Mirror(int n, int pNo): dimension(n), patternNo(pNo){
-		pattern.resize(n);
-		mPattern.resize(n);
+    PatternMatrix(int n) : dimension(n) {
+        original.resize(n);
+        transformed.resize(n);
 
-		for(int i = 0; i < n; i++){
-			string line;
-			getline(cin, line);
-			stringstream ss(line);
+        for (int i = 0; i < n; ++i) {
+            string line;
+            getline(cin, line);
+            stringstream ss(line);
+            ss >> original[i] >> transformed[i];
+        }
+    }
 
-			string leftPattern, rightPattern;
-			ss >> leftPattern >> rightPattern;
+    vector<string> getOriginal() const {
+        return original;
+    }
 
-			pattern[i] = leftPattern;
-			mPattern[i] = rightPattern;
-		}
-	}
-
-	vector<string> getPatternMatrix(){
-		return pattern;
-	}
-	vector<string> getMPatternMatrix(){
-		return mPattern;
-	}
-
-	vector<string> rotate90Degree(vector<string> matrix){
-		reverse(matrix.begin(), matrix.end());
-
-		vector<string> ansMatrix = matrix;
-
-		for(int i = 0; i < matrix.size(); i++){
-			for(int j = 0; j < matrix[0].size(); j++){
-				ansMatrix[i][j] = matrix[j][i];
-			}
-		}
-		return ansMatrix;
-	}
-
-	bool isPreserved(vector<string> &matrix){
-		return matrix == mPattern;
-	}
-
-	bool isVerticallyReflected(vector<string> matrix){
-		reverse(matrix.begin(), matrix.end());
-		return matrix == mPattern;
-	}
-
-	void executeSolution(){
-		cout<<"Pattern "<<patternNo<<" ";
-		vector<string> matrix = pattern;
-		if(matrix == mPattern){
-			cout<<"was preserved."<<endl;
-			return;
-		}
-		else{
-			vector<string> rotatedMatrix = rotate90Degree(matrix); //90 degree rotation of pattern
-			if(rotatedMatrix == mPattern){
-				cout<<"was rotated 90 degrees."<<endl;
-				return;
-			}
-
-			rotatedMatrix = rotate90Degree(rotatedMatrix); //180 degree rotation;
-			if(rotatedMatrix == mPattern){
-				cout<<"was rotated 180 degrees."<<endl;
-				return;
-			}
-			rotatedMatrix = rotate90Degree(rotatedMatrix); //270 degree rotation;
-			if(rotatedMatrix == mPattern){
-				cout<<"was rotated 270 degrees."<<endl;
-				return;
-			}
-
-		}
-		if(isVerticallyReflected(matrix)){
-			cout<<"was reflected vertically."<<endl;
-			return;
-		}
-		else{
-			reverse(matrix.begin(), matrix.end());
-			vector<string> rotatedMatrix = rotate90Degree(matrix); //90 degree rotation of pattern
-			if(rotatedMatrix == mPattern){
-				cout<<"was reflected vertically and rotated 90 degrees."<<endl;
-				return;
-			}
-
-			rotatedMatrix = rotate90Degree(rotatedMatrix); //180 degree rotation;
-			if(rotatedMatrix == mPattern){
-				cout<<"was reflected vertically and rotated 180 degrees."<<endl;
-				return;
-			}
-			rotatedMatrix = rotate90Degree(rotatedMatrix); //270 degree rotation;
-			if(rotatedMatrix == mPattern){
-				cout<<"was reflected vertically and rotated 270 degrees."<<endl;
-				return;
-			}
-		}
-
-		cout<<"was improperly transformed.";
-		cout<<endl;
-	}
-
-	void printPatternMatrix(vector<string> matrix){
-		for(auto &mat: matrix)
-			cout<<mat<<endl;
-	}
+    vector<string> getTransformed() const {
+        return transformed;
+    }
 };
 
-int main(){
- 
-	fast_io;
- 
-	#ifndef ONLINE_JUDGE
-		freopen("input.txt",  "r",  stdin);
-		freopen("output.txt", "w", stdout);
-	#endif
- 
-	string dimension;
-	int i = 1;
-	while(getline(cin, dimension)){
-		stringstream ss(dimension);
-		int n;
-		ss >> n;		
-		Mirror m(n, i);
-		m.executeSolution();
-		i++;
-	}
+class PatternTransformer {
+public:
+    static vector<string> rotate90(const vector<string>& matrix) {
+        int n = matrix.size();
+        int m = matrix[0].size();
+        vector<string> rotated(m, string(n, ' '));
+        for (int i = 0; i < n; ++i)
+            for (int j = 0; j < m; ++j)
+                rotated[j][n - 1 - i] = matrix[i][j];
+        return rotated;
+    }
 
- 
-	return 0;
+    static vector<string> rotate180(const vector<string>& matrix) {
+        return rotate90(rotate90(matrix));
+    }
+
+    static vector<string> rotate270(const vector<string>& matrix) {
+        return rotate90(rotate180(matrix));
+    }
+
+    static vector<string> reflectVertical(const vector<string>& matrix) {
+        vector<string> reflected = matrix;
+        reverse(reflected.begin(), reflected.end());
+        return reflected;
+    }
+};
+
+class MirrorAnalyzer {
+private:
+    PatternMatrix pattern;
+    int patternNumber;
+
+public:
+    MirrorAnalyzer(PatternMatrix pm, int pNo) : pattern(pm), patternNumber(pNo) {}
+
+    void analyze() {
+        vector<string> orig = pattern.getOriginal();
+        vector<string> target = pattern.getTransformed();
+
+        cout << "Pattern " << patternNumber << " ";
+
+        if (orig == target) {
+            cout << "was preserved." << endl;
+        } else if (PatternTransformer::rotate90(orig) == target) {
+            cout << "was rotated 90 degrees." << endl;
+        } else if (PatternTransformer::rotate180(orig) == target) {
+            cout << "was rotated 180 degrees." << endl;
+        } else if (PatternTransformer::rotate270(orig) == target) {
+            cout << "was rotated 270 degrees." << endl;
+        } else if (PatternTransformer::reflectVertical(orig) == target) {
+            cout << "was reflected vertically." << endl;
+        } else {
+            vector<string> reflected = PatternTransformer::reflectVertical(orig);
+            if (PatternTransformer::rotate90(reflected) == target) {
+                cout << "was reflected vertically and rotated 90 degrees." << endl;
+            } else if (PatternTransformer::rotate180(reflected) == target) {
+                cout << "was reflected vertically and rotated 180 degrees." << endl;
+            } else if (PatternTransformer::rotate270(reflected) == target) {
+                cout << "was reflected vertically and rotated 270 degrees." << endl;
+            } else {
+                cout << "was improperly transformed." << endl;
+            }
+        }
+    }
+};
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+#ifndef ONLINE_JUDGE
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#endif
+
+    string line;
+    int testCase = 1;
+    while (getline(cin, line)) {
+        if (line.empty()) continue;
+        stringstream ss(line);
+        int n;
+        ss >> n;
+        PatternMatrix pm(n);
+        MirrorAnalyzer analyzer(pm, testCase++);
+        analyzer.analyze();
+    }
+
+    return 0;
 }

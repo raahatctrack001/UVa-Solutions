@@ -38,132 +38,56 @@ typedef vector<pll> vpll;
 typedef set<int> si;
 typedef map<int, int> mii;
 
-vector<string> tokenize(string &str){	
-	vector <string> tokens;
-    stringstream check1(str);
-     
-    string intermediate;
-    while(getline(check1, intermediate, ' '))
-    {
-        tokens.push_back(intermediate);
-    }
-    return tokens;
-}
-
-#include <bits/stdc++.h>
-using namespace std;
-
-class Matrix {
-private:
-    int n;
-    vector<vector<int>> mat;
-
+class Solution{
 public:
-    Matrix(int size) : n(size), mat(size, vector<int>(size)) {}
-
-    void readMatrix() {
-        for (auto& row : mat)
-            for (auto& elem : row)
-                cin >> elem;
-    }
-
-    void printMatrix1() const {
-        for (int i = 0; i < n; ++i)
-            for (int j = 0; j < n; ++j)
-                cout << mat[i][j] << (j + 1 < n ? " " : "\n");
-    }
-
-    void upsideDownFlip(int ring) {
-        int limit = n - ring - 1;
-        for (int k = ring; k <= limit; ++k)
-            swap(mat[ring][k], mat[limit][k]);
-
-        for (int k = ring + 1; (k << 1) < n - 1; ++k) {
-            int l = n - k - 1;
-            swap(mat[k][ring], mat[l][ring]);
-            swap(mat[k][limit], mat[l][limit]);
-        }
-    }
-
-    void leftRightFlip(int ring) {
-        int limit = n - ring - 1;
-        for (int k = ring; k <= limit; ++k)
-            swap(mat[k][ring], mat[k][limit]);
-
-        for (int k = ring + 1; (k << 1) < n - 1; ++k) {
-            int l = n - k - 1;
-            swap(mat[ring][k], mat[ring][l]);
-            swap(mat[limit][k], mat[limit][l]);
-        }
-    }
-
-    void mainDiagonalFlip(int ring) {
-        int limit = n - ring - 1;
-        for (int k = ring + 1; k <= limit; ++k) {
-            swap(mat[ring][k], mat[k][ring]);
-            swap(mat[limit][k], mat[k][limit]);
-        }
-    }
-
-    void inverseDiagonalFlip(int ring) {
-        int limit = n - ring - 1;
-        for (int k = limit - 1, l = ring + 1; k >= ring; --k, ++l) {
-            swap(mat[ring][k], mat[l][limit]);
-            swap(mat[l][ring], mat[limit][k]);
-        }
-    }
-
-    void performAction(int action, int ring) {
-        switch (action) {
-            case 1: upsideDownFlip(ring); break;
-            case 2: leftRightFlip(ring); break;
-            case 3: mainDiagonalFlip(ring); break;
-            case 4: inverseDiagonalFlip(ring); break;
-        }
-    }
-
-    int getSize() const { return n; }
+	 void executeSolution(){
+	 	int W, H, N;
+    	while (cin >> W >> H >> N && (W || H || N)) {
+        	vector<vector<bool>> board(W + 1, vector<bool>(H + 1, false));
+	
+        	for (int i = 0; i < N; ++i) {
+        	    int x1, y1, x2, y2;
+        	    cin >> x1 >> y1 >> x2 >> y2;
+	
+        	    int x_min = min(x1, x2);
+        	    int x_max = max(x1, x2);
+        	    int y_min = min(y1, y2);
+        	    int y_max = max(y1, y2);
+	
+        	    for (int x = x_min; x <= x_max; ++x) {
+        	        for (int y = y_min; y <= y_max; ++y) {
+        	            board[x][y] = true;
+        	        }
+        	    }
+        	}
+	
+        	int emptySpots = 0;
+        	for (int x = 1; x <= W; ++x) {
+        	    for (int y = 1; y <= H; ++y) {
+        	        if (!board[x][y]) ++emptySpots;
+        	    }
+        	}
+	
+        	if (emptySpots == 0)
+        	    cout << "There is no empty spots." << endl;
+        	else if (emptySpots == 1)
+        	    cout << "There is one empty spot." << endl;
+        	else
+        	    cout << "There are " << emptySpots << " empty spots." << endl;
+    	}
+	}
 };
-
-class ProblemSolver {
-public:
-    void processTestCases() {
-        int testCases;
-        cin >> testCases;
-
-        while (testCases--) {
-            int n;
-            cin >> n;
-            Matrix matrix(n);
-            matrix.readMatrix();
-
-            int rings = (n >> 1) + (n & 1);
-            for (int i = 0; i < rings; ++i) {
-                int actions;
-                cin >> actions;
-                for (int j = 0; j < actions; ++j) {
-                    int action;
-                    cin >> action;
-                    matrix.performAction(action, i);
-                }
-            }
-
-            matrix.printMatrix1();
-        }
-    }
-};
-
-int main() {
-    fast_io;
+int main(){
+ 
+	fast_io;
  
 	#ifndef ONLINE_JUDGE
 		freopen("input.txt",  "r",  stdin);
 		freopen("output.txt", "w", stdout);
 	#endif
-
-    ProblemSolver solver;
-    solver.processTestCases();
-
-    return 0;
+ 
+	Solution sol;
+	sol.executeSolution();
+ 
+	return 0;
 }
-
